@@ -150,21 +150,26 @@ function getFilmDetails(){
             var data = {currentFilm:currentFilm};
             $.ajax({url:"/relatedfilmsbyplot/",data:data,success: function(result) {
 
-                  var relatedByPlot = [];
-                   for(i=0;i<result.length;i++){
+                  /*var relatedByPlot = [];
+                   for(i=0;i<result.details.length;i++){
                        var jsonResponse;
-                       if(typeof result[i] != "object"){
-                        jsonResponse = JSON.parse(result[i]);
+                       if(typeof result.details[i] != "object"){
+                        jsonResponse = JSON.parse(result.details[i]);
                        }else{
-                           jsonResponse = result[i];
+                           jsonResponse = result.details[i];
                        }
                        relatedByPlot.push(jsonResponse);
 
 
 
-                  }
+                  }*/
 
-                  displayRelatedByPlot(relatedByPlot);
+                  //displayRelatedByPlot(relatedByPlot,result.precision);
+
+                displayRelatedBy(result.detailsPlot,result.precisionPlot,false,"byPlot","RELATED BY PLOT","postersPlot","evalPlot","listPlot","/static/images/plot.png");
+                displayRelatedBy(result.detailsCompany,result.precisionCompany,true,"byCompany","RELATED BY PRODUCTION COMPANIES","postersCompany","evalCompany","listCompany","/static/images/production_companies.png");
+                displayRelatedBy(result.detailsCast,result.precisionCast,true,"byCast","RELATED BY CAST MEMBERS","postersCast","evalCast","listCast","/static/images/cast.png");
+                displayRelatedBy(result.detailsCrew,result.precisionCrew,true,"byCrew","RELATED BY CREW MEMBERS","postersCrew","evalCrew","listCrew","/static/images/crew.png");
 
 
 
@@ -246,31 +251,36 @@ function relatedFilms(related){
 }
 
 
- function displayRelatedByPlot(relatedByPlot){
+ function displayRelatedByPlot(relatedByPlot,precision){
      var analyzed = document.getElementById("analyzedFilms");
 
      analyzed.innerHTML='<div id="byPlot"></div>';
      var byPlot = document.getElementById("byPlot");
      var eval = "'eval'";
      var posters = "'posters'";
-     byPlot.innerHTML='<h4><small><b>RELATED BY PLOT COMPUTED USING COSINE SIMILARITY</b></small></h4>'+
+     byPlot.innerHTML='<h4><small><b>RELATED BY PLOT</b></small></h4>'+
                       '<div class="ui large buttons">'+
                       '<button class="ui button" onclick="swapTabPlot('+posters+')">Posters</button>'+
                       '<div class="or"></div>'+
                       '<button class="ui button" onclick="swapTabPlot('+eval+')">List and Evaluation</button>'+
                       '</div>'+
                       '<br><br>'+
-                      '<div id="posters"></div>'+
-                      '<div id="eval" style="display: none;"></div>';
+                      '<div id="postersPlot" style="display: none;"></div>'+
+                      '<div id="evalPlot"></div>';
 
-     var postersDiv = document.getElementById("posters");
+     var postersDiv = document.getElementById("postersPlot");
      postersDiv.innerHTML+="<br>";
-     var evalDiv = document.getElementById("eval");
+     var evalDiv = document.getElementById("evalPlot");
      var date = new Date();
      var time = date.getTime();
      evalDiv.innerHTML='<div class="ui link list" id="plotList" style="float: left;"></div>';
      evalDiv.innerHTML+='<div class="ui big images">'+
                         '<img class="ui image" src="/static/images/plot.png?'+time+'">'+
+                        '</div>'+
+                        '<br>'+
+                        '<div class="ui label">'+
+                        'Precision'+
+                        '<div class="detail">'+precision+'</div>'+
                         '</div>';
 
      var plotList = document.getElementById("plotList");
@@ -312,16 +322,89 @@ function relatedFilms(related){
 
  }
 
- function swapTabPlot(tab){
-     var posters = document.getElementById("posters");
-     var eval = document.getElementById("eval");
+ function displayRelatedBy(related,precision,appending,divBy,text,divPoster,divEval,divList,imageSrc){
+     console.log("relatedBy");
+     var analyzed = document.getElementById("analyzedFilms");
+     if(appending)
+        analyzed.innerHTML+='<br><br><br>'+
+                            '<div id="'+divBy+'"></div>';
+     else
+          analyzed.innerHTML='<div id="'+divBy+'"></div>';
+     var by = document.getElementById(divBy);
+     var eval = "'eval'";
+     var posters = "'posters'";
+     var postersDiv = "'"+divPoster+"'";
+     var evalDiv = "'"+divEval+"'";
+     by.innerHTML='<h4><small><b>'+text+'</b></small></h4>'+
+                      '<div class="ui large buttons">'+
+                      '<button class="ui button" onclick="swapTab('+posters+','+postersDiv+','+evalDiv+')">Posters</button>'+
+                      '<div class="or"></div>'+
+                      '<button class="ui button" onclick="swapTab('+eval+','+postersDiv+','+evalDiv+')">List and Evaluation</button>'+
+                      '</div>'+
+                      '<br><br>'+
+                      '<div id="'+divPoster+'" style="display: none;"></div>'+
+                      '<div id="'+divEval+'"></div>';
+
+     var postersDiv = document.getElementById(divPoster);
+     postersDiv.innerHTML+="<br>";
+     var evalDiv = document.getElementById(divEval);
+     var date = new Date();
+     var time = date.getTime();
+     evalDiv.innerHTML='<div class="ui link list" id="'+divList+'" style="float: left;"></div>';
+     evalDiv.innerHTML+='<div class="ui big images">'+
+                        '<img class="ui image" src="'+imageSrc+'?'+time+'">'+
+                        '</div>'+
+                        '<br>'+
+                        '<div class="ui label">'+
+                        'Precision'+
+                        '<div class="detail">'+precision+'</div>'+
+                        '</div>';
+
+     var List = document.getElementById(divList);
+     for(i=0;i<related.length;i++){
+         var attribute = "location.href='http://localhost:8000/film.html?film="+related[i].id+"'";
+         postersDiv.innerHTML+='<div class="ui card" style="width: 200px;height:480px;float: left;">'+
+                              '<div class="image" >'+
+                              '<img src="'+imagesBaseUrl+related[i].poster_path+'">'+
+                              '</div>'+
+                              '<div class="content">'+
+                              '<a class="header" id="'+related[i].id+'" onclick="'+attribute+'">'+related[i].title+'</a>'+
+                              '<div class="meta">'+
+                              '<span class="date">'+related[i].release_date+
+                              '</div>'+
+                              '<div class="description">'+
+                               /*genres+*/
+                              '</div>'+
+                              '</div>'+
+                              '<div class="extra content">'+
+                              '<a>'+
+                              '<i class="star outline icon"></i>'+
+                              'IMDB Rating:'+related[i].vote_average+
+                              '</a>'+
+                              '</div>'+
+                              '</div>';
+
+         List.innerHTML+='<a class="item" onclick="'+attribute+'" id="'+related[i].id+'">'+related[i].title+'</a>';
+
+
+
+
+
+
+
+
+
+    }
+ }
+
+ function swapTab(tab,postersDiv,evalDiv){
+     var posters = document.getElementById(postersDiv);
+     var eval = document.getElementById(evalDiv);
      if(tab=="posters"){
-         console.log("posters");
          posters.style="display:inline;";
          eval.style="display:none";
 
      }else if(tab=="eval"){
-         console.log("eval");
          posters.style="display:none;";
          eval.style="display:inline;";
      }

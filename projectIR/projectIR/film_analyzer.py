@@ -48,12 +48,19 @@ def getRelatedByPlot(film_id):
 
 
     precision = computeConfusionMatrix(true_labels,predicted_labels,"./public/images/plot.png")
-    getRelatedByProductionCompanies()
-    getRelatedByCast()
-    getRelatedByCrew()
-
-
-    return details_to_return
+    companies = getRelatedByProductionCompanies()
+    cast = getRelatedByCast()
+    crew = getRelatedByCrew()
+    to_return = dict()
+    to_return['detailsPlot'] = details_to_return
+    to_return['precisionPlot'] = precision
+    to_return['detailsCompany'] = companies['details']
+    to_return['precisionCompany'] = companies['precision']
+    to_return['detailsCast'] = cast['details']
+    to_return['precisionCast'] = cast['precision']
+    to_return['detailsCrew'] = crew['details']
+    to_return['precisionCrew'] = crew['precision']
+    return to_return
 
 
 
@@ -131,7 +138,10 @@ def getRelatedByCast():
     details_to_return = cosineSimilarity(cast_list,tokenizer=False)
     predicted_labels = getPredictedLabels(details_to_return)
     precision = computeConfusionMatrix(true_labels,predicted_labels, "./public/images/cast.png")
-    return details_to_return
+    to_return = dict()
+    to_return['details'] = details_to_return
+    to_return['precision'] = precision
+    return to_return
 
 
 
@@ -148,7 +158,10 @@ def getRelatedByCrew():
     details_to_return = cosineSimilarity(crew_list,tokenizer=False)
     predicted_labels = getPredictedLabels(details_to_return)
     precision = computeConfusionMatrix(true_labels,predicted_labels,"./public/images/crew.png")
-    return details_to_return
+    to_return = dict()
+    to_return['details'] = details_to_return
+    to_return['precision'] = precision
+    return to_return
 
 
 
@@ -165,7 +178,10 @@ def getRelatedByProductionCompanies():
     details_to_return = cosineSimilarity(company_list,tokenizer=False)
     predicted_labels = getPredictedLabels(details_to_return)
     precision = computeConfusionMatrix(true_labels, predicted_labels, "./public/images/production_companies.png")
-    return details_to_return
+    to_return = dict()
+    to_return['details'] = details_to_return
+    to_return['precision'] = precision
+    return to_return
 
 
 
