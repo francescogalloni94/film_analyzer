@@ -343,6 +343,7 @@ function relatedFilms(related){
                       '</div>'+
                       '<br><br>'+
                       '<div id="'+divPoster+'" style="display: none;"></div>'+
+                      '<br><br>'+
                       '<div id="'+divEval+'"></div>';
 
      var postersDiv = document.getElementById(divPoster);
@@ -395,13 +396,14 @@ function relatedFilms(related){
 
 
     }
+    postersDiv.innerHTML+='<br><br>';
  }
 
  function swapTab(tab,postersDiv,evalDiv){
      var posters = document.getElementById(postersDiv);
      var eval = document.getElementById(evalDiv);
      if(tab=="posters"){
-         posters.style="display:inline;";
+         posters.style="display:inline-block;";
          eval.style="display:none";
 
      }else if(tab=="eval"){

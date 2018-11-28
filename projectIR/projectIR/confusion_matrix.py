@@ -40,6 +40,7 @@ def plot_confusion_matrix(cm,
                      color="white" if cm[i, j] > thresh else "black")
 
     plt.tight_layout()
+    plt.gcf().subplots_adjust(bottom=0.20)
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     fig.savefig(filename, dpi=fig.dpi)
