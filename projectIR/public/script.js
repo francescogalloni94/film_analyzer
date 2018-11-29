@@ -170,6 +170,7 @@ function getFilmDetails(){
                 displayRelatedBy(result.detailsCompany,result.precisionCompany,true,"byCompany","RELATED BY PRODUCTION COMPANIES","postersCompany","evalCompany","listCompany","/static/images/production_companies.png");
                 displayRelatedBy(result.detailsCast,result.precisionCast,true,"byCast","RELATED BY CAST MEMBERS","postersCast","evalCast","listCast","/static/images/cast.png");
                 displayRelatedBy(result.detailsCrew,result.precisionCrew,true,"byCrew","RELATED BY CREW MEMBERS","postersCrew","evalCrew","listCrew","/static/images/crew.png");
+                displayRelatedBy(result.detailsGenres,result.precisionGenres,true,"byGenres","RELATED BY GENRES AND RANKED BY PLOT","postersGenres","evalGenres","listGenres","/static/images/genres.png");
 
 
 
@@ -251,76 +252,6 @@ function relatedFilms(related){
 }
 
 
- function displayRelatedByPlot(relatedByPlot,precision){
-     var analyzed = document.getElementById("analyzedFilms");
-
-     analyzed.innerHTML='<div id="byPlot"></div>';
-     var byPlot = document.getElementById("byPlot");
-     var eval = "'eval'";
-     var posters = "'posters'";
-     byPlot.innerHTML='<h4><small><b>RELATED BY PLOT</b></small></h4>'+
-                      '<div class="ui large buttons">'+
-                      '<button class="ui button" onclick="swapTabPlot('+posters+')">Posters</button>'+
-                      '<div class="or"></div>'+
-                      '<button class="ui button" onclick="swapTabPlot('+eval+')">List and Evaluation</button>'+
-                      '</div>'+
-                      '<br><br>'+
-                      '<div id="postersPlot" style="display: none;"></div>'+
-                      '<div id="evalPlot"></div>';
-
-     var postersDiv = document.getElementById("postersPlot");
-     postersDiv.innerHTML+="<br>";
-     var evalDiv = document.getElementById("evalPlot");
-     var date = new Date();
-     var time = date.getTime();
-     evalDiv.innerHTML='<div class="ui link list" id="plotList" style="float: left;"></div>';
-     evalDiv.innerHTML+='<div class="ui big images">'+
-                        '<img class="ui image" src="/static/images/plot.png?'+time+'">'+
-                        '</div>'+
-                        '<br>'+
-                        '<div class="ui label">'+
-                        'Precision'+
-                        '<div class="detail">'+precision+'</div>'+
-                        '</div>';
-
-     var plotList = document.getElementById("plotList");
-     for(i=0;i<relatedByPlot.length;i++){
-         var attribute = "location.href='http://localhost:8000/film.html?film="+relatedByPlot[i].id+"'";
-         postersDiv.innerHTML+='<div class="ui card" style="width: 200px;height:480px;float: left;">'+
-                              '<div class="image" >'+
-                              '<img src="'+imagesBaseUrl+relatedByPlot[i].poster_path+'">'+
-                              '</div>'+
-                              '<div class="content">'+
-                              '<a class="header" id="'+relatedByPlot[i].id+'" onclick="'+attribute+'">'+relatedByPlot[i].title+'</a>'+
-                              '<div class="meta">'+
-                              '<span class="date">'+relatedByPlot[i].release_date+
-                              '</div>'+
-                              '<div class="description">'+
-                               /*genres+*/
-                              '</div>'+
-                              '</div>'+
-                              '<div class="extra content">'+
-                              '<a>'+
-                              '<i class="star outline icon"></i>'+
-                              'IMDB Rating:'+relatedByPlot[i].vote_average+
-                              '</a>'+
-                              '</div>'+
-                              '</div>';
-
-         plotList.innerHTML+='<a class="item" onclick="'+attribute+'" id="'+relatedByPlot[i].id+'">'+relatedByPlot[i].title+'</a>';
-
-
-
-
-
-
-
-
-
-    }
-
-
- }
 
  function displayRelatedBy(related,precision,appending,divBy,text,divPoster,divEval,divList,imageSrc){
      console.log("relatedBy");

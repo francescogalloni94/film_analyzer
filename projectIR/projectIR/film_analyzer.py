@@ -12,6 +12,8 @@ client = MongoClient()
 client = MongoClient('localhost', 27017)
 db = client['IRDB']
 film_collection = db['films']
+genres_collection = db['genres']
+precisions_collection = db['precisions']
 film_list = list()
 true_labels = list()
 
@@ -51,6 +53,7 @@ def getRelatedByPlot(film_id):
     companies = getRelatedByProductionCompanies()
     cast = getRelatedByCast()
     crew = getRelatedByCrew()
+    genres = getRelatedByGenre()
     to_return = dict()
     to_return['detailsPlot'] = details_to_return
     to_return['precisionPlot'] = precision
@@ -60,11 +63,13 @@ def getRelatedByPlot(film_id):
     to_return['precisionCast'] = cast['precision']
     to_return['detailsCrew'] = crew['details']
     to_return['precisionCrew'] = crew['precision']
+    to_return['detailsGenres'] = genres['details']
+    to_return['precisionGenres'] = genres['precision']
     return to_return
 
 
 
-def cosineSimilarity(toAnalyze,tokenizer=True):
+def cosineSimilarity(toAnalyze,tokenizer=True,returnFilm=True):
     global film_list
     if tokenizer:
         tfidf_vectorizer = TfidfVectorizer()
@@ -76,11 +81,14 @@ def cosineSimilarity(toAnalyze,tokenizer=True):
     ordered_array = numpy.argsort(similarity_array[0])[::-1][:21]
     ordered_array = numpy.delete(ordered_array, 0)
 
-    details_to_return = list()
-    for element in ordered_array:
-        details_to_return.append(film_list[element])
+    if returnFilm:
+        details_to_return = list()
+        for element in ordered_array:
+            details_to_return.append(film_list[element])
 
-    return details_to_return
+        return details_to_return
+    else:
+        return ordered_array
 
 
 def computeConfusionMatrix(true_labels,predicted_labels,filename):
@@ -117,12 +125,64 @@ def getPredictedLabels(details_to_return):
 
 def getRelatedByGenre():
     global film_list
+    global true_labels
     genres_list = list()
     for element in film_list:
         genres = list()
         for genre in element['genres']:
             genres.append(genre['name'])
         genres_list.append(genres)
+    genres_db = genres_collection.find()
+    genres_dict = dict()
+    for element in genres_db:
+        indexed_documents = list()
+        genres_dict[element['name']] = indexed_documents
+
+    count = 0
+    for element in genres_list:
+        for genre in element:
+            genres_dict[genre].append(count)
+        count = count+1
+
+
+    intersection = list()
+    count = 0
+    for genre in genres_list[0]:
+        if count == 0:
+            intersection = genres_dict[genre]
+        else:
+            intersection = list(set(intersection) & set(genres_dict[genre]))
+        count = count + 1
+
+    details_to_return = list()
+    to_return = dict()
+    if len(intersection)<=20:
+        for element in intersection:
+            details_to_return.append(film_list[element])
+        predicted_labels = getPredictedLabels(details_to_return)
+        precision = computeConfusionMatrix(true_labels,predicted_labels, "./public/images/genres.png")
+        to_return['details'] = details_to_return
+        to_return['precision'] = precision
+        return to_return
+    else:
+        overviews = list()
+        overviews.append(film_list[0]['overview'])
+        for element in intersection:
+            if element != 0:
+                overviews.append(film_list[element]['overview'])
+        print(overviews[0])
+        orderedArray = cosineSimilarity(overviews,returnFilm=False)
+        for element in orderedArray:
+            details_to_return.append(film_list[intersection[element]])
+        predicted_labels = getPredictedLabels(details_to_return)
+        precision = computeConfusionMatrix(true_labels,predicted_labels,"./public/images/genres.png")
+        to_return['details'] = details_to_return
+        to_return['precision'] = precision
+        return to_return
+
+
+
+
 
 
 
