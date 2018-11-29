@@ -55,16 +55,29 @@ def getRelatedByPlot(film_id):
     crew = getRelatedByCrew()
     genres = getRelatedByGenre()
     to_return = dict()
+    precision_db = dict()
+    precision_db['id'] = film_list[0]['id']
     to_return['detailsPlot'] = details_to_return
     to_return['precisionPlot'] = precision
+    precision_db['precisionPlot'] = precision
     to_return['detailsCompany'] = companies['details']
     to_return['precisionCompany'] = companies['precision']
+    precision_db['precisionCompany'] = companies['precision']
     to_return['detailsCast'] = cast['details']
     to_return['precisionCast'] = cast['precision']
+    precision_db['precisionCast'] = cast['precision']
     to_return['detailsCrew'] = crew['details']
     to_return['precisionCrew'] = crew['precision']
-    to_return['detailsGenres'] = genres['details']
-    to_return['precisionGenres'] = genres['precision']
+    precision_db['precisionCrew'] = crew['precision']
+    if genres != None:
+        to_return['detailsGenres'] = genres['details']
+        to_return['precisionGenres'] = genres['precision']
+        precision_db['precisionGenres'] = genres['precision']
+
+    if precisions_collection.find({"id":precision_db['id']}).count() == 0:
+        precisions_collection.insert_one(precision_db)
+
+
     return to_return
 
 
@@ -157,13 +170,7 @@ def getRelatedByGenre():
     details_to_return = list()
     to_return = dict()
     if len(intersection)<=20:
-        for element in intersection:
-            details_to_return.append(film_list[element])
-        predicted_labels = getPredictedLabels(details_to_return)
-        precision = computeConfusionMatrix(true_labels,predicted_labels, "./public/images/genres.png")
-        to_return['details'] = details_to_return
-        to_return['precision'] = precision
-        return to_return
+        return None
     else:
         overviews = list()
         overviews.append(film_list[0]['overview'])

@@ -170,7 +170,8 @@ function getFilmDetails(){
                 displayRelatedBy(result.detailsCompany,result.precisionCompany,true,"byCompany","RELATED BY PRODUCTION COMPANIES","postersCompany","evalCompany","listCompany","/static/images/production_companies.png");
                 displayRelatedBy(result.detailsCast,result.precisionCast,true,"byCast","RELATED BY CAST MEMBERS","postersCast","evalCast","listCast","/static/images/cast.png");
                 displayRelatedBy(result.detailsCrew,result.precisionCrew,true,"byCrew","RELATED BY CREW MEMBERS","postersCrew","evalCrew","listCrew","/static/images/crew.png");
-                displayRelatedBy(result.detailsGenres,result.precisionGenres,true,"byGenres","RELATED BY GENRES AND RANKED BY PLOT","postersGenres","evalGenres","listGenres","/static/images/genres.png");
+                if(result.detailsGenres!=undefined && result.precisionGenres!=undefined)
+                    displayRelatedBy(result.detailsGenres,result.precisionGenres,true,"byGenres","RELATED BY GENRES AND RANKED BY PLOT","postersGenres","evalGenres","listGenres","/static/images/genres.png");
 
 
 
