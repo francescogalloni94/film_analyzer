@@ -1,6 +1,11 @@
 import requests
 import time
+from pymongo import MongoClient
 
+client = MongoClient()
+client = MongoClient('localhost', 27017)
+db = client['IRDB']
+precisions_collection = db['precisions']
 Tmdb_APIKEY = '32001eea54ed498b049c61a935afdb6e'
 
 
@@ -26,4 +31,19 @@ def getFilmDetails(imdb_id):
 def getReccomendedFilm(imdb_id):
     r = requests.get('https://api.themoviedb.org/3/movie/'+imdb_id+'/recommendations?api_key='+Tmdb_APIKEY+'&language=en-US&page=1')
     return r.json()
+
+def getFilmsAveragePrecisions():
+    pipeline = [{
+        "$group":{
+        "_id": None,
+        "avg_plot":{"$avg":"$precisionPlot"},
+        "avg_crew":{"$avg":"$precisionCrew"},
+        "avg_company":{"$avg":"$precisionCompany"},
+        "avg_genres":{"$avg":"$precisionGenres"},
+        "avg_cast":{"$avg":"$precisionCast"},
+        "count":{"$sum":1}
+     }
+    }]
+    result = list(precisions_collection.aggregate(pipeline))
+    return result
 

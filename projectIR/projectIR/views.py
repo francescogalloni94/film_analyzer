@@ -22,3 +22,7 @@ def getRelatedByPlot(request):
     film_id = request.GET.get('currentFilm','')
     relatedByPlot = film_analyzer.getRelatedByPlot(film_id)
     return JsonResponse(relatedByPlot,safe=False)
+
+def getFilmsAveragePrecisions(request):
+    result = film_utility.getFilmsAveragePrecisions()
+    return JsonResponse(result)

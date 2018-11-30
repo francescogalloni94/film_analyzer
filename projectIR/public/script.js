@@ -20,6 +20,10 @@ function home(){
         searchFilm();
     }
 
+    $.ajax({url:"/filmsaverageprecisions",success:function (result) {
+
+    }});
+
 }
 
 

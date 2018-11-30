@@ -159,13 +159,12 @@ def getRelatedByGenre():
 
 
     intersection = list()
-    count = 0
     for genre in genres_list[0]:
-        if count == 0:
-            intersection = genres_dict[genre]
-        else:
-            intersection = list(set(intersection) & set(genres_dict[genre]))
-        count = count + 1
+        intersection.append(set(genres_dict[genre]))
+
+    intersection = set.intersection(*intersection)
+    intersection = list(intersection)
+
 
     details_to_return = list()
     to_return = dict()

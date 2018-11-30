@@ -24,7 +24,8 @@ urlpatterns = [
     url(r'^film.html/',views.film),
     url(r'^searchFilm/', views.searchFilm),
     url(r'^getFilmDetails/', views.getFilmDetails),
-    url(r'^relatedfilmsbyplot/',views.getRelatedByPlot)
+    url(r'^relatedfilmsbyplot/',views.getRelatedByPlot),
+    url(r'^filmsaverageprecisions/',views.getFilmsAveragePrecisions)
 ]
 
 urlpatterns += staticfiles_urlpatterns()
