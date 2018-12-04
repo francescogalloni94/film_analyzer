@@ -25,4 +25,4 @@ def getRelatedByPlot(request):
 
 def getFilmsAveragePrecisions(request):
     result = film_utility.getFilmsAveragePrecisions()
-    return JsonResponse(result)
+    return JsonResponse(result,safe=False)

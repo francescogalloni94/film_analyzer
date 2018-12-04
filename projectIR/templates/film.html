@@ -27,6 +27,11 @@
       padding: 15px;
     }
 
+    #meanPrecisions{
+        position: fixed;
+        border-left: 50px;
+    }
+
 
   </style>
 </head>
@@ -70,6 +75,8 @@
           </button>
         </span>
       </div>
+       <br><br>
+        <div id="meanPrecisions"></div>
     </div>
 
     <div class="col-sm-9">
@@ -81,14 +88,14 @@
             <p></p>
         </div>
         </div>
-      <h4><small>SEARCHED FILM</small></h4>
+      <h4 id="labelSearchedFilm"><small>SEARCHED FILM</small></h4>
       <hr>
         <div id="searchedFilm" style="width: 100%;heigth:80 vh; overflow:scroll">
 
         </div>
       <br><br>
 
-      <h4><small>RELATED FILMS</small></h4>
+      <h4 id="labelRelatedFilms"><small>RELATED FILMS</small></h4>
       <hr>
         <div id="relatedFilms" style="width: 100%;heigth:70 vh; overflow:scroll">
 

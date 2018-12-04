@@ -20,9 +20,8 @@ function home(){
         searchFilm();
     }
 
-    $.ajax({url:"/filmsaverageprecisions",success:function (result) {
+    meanPrecisions(true);
 
-    }});
 
 }
 
@@ -154,21 +153,6 @@ function getFilmDetails(){
             var data = {currentFilm:currentFilm};
             $.ajax({url:"/relatedfilmsbyplot/",data:data,success: function(result) {
 
-                  /*var relatedByPlot = [];
-                   for(i=0;i<result.details.length;i++){
-                       var jsonResponse;
-                       if(typeof result.details[i] != "object"){
-                        jsonResponse = JSON.parse(result.details[i]);
-                       }else{
-                           jsonResponse = result.details[i];
-                       }
-                       relatedByPlot.push(jsonResponse);
-
-
-
-                  }*/
-
-                  //displayRelatedByPlot(relatedByPlot,result.precision);
 
                 displayRelatedBy(result.detailsPlot,result.precisionPlot,false,"byPlot","RELATED BY PLOT","postersPlot","evalPlot","listPlot","/static/images/plot.png");
                 displayRelatedBy(result.detailsCompany,result.precisionCompany,true,"byCompany","RELATED BY PRODUCTION COMPANIES","postersCompany","evalCompany","listCompany","/static/images/production_companies.png");
@@ -178,7 +162,7 @@ function getFilmDetails(){
                     displayRelatedBy(result.detailsGenres,result.precisionGenres,true,"byGenres","RELATED BY GENRES AND RANKED BY PLOT","postersGenres","evalGenres","listGenres","/static/images/genres.png");
 
 
-
+                meanPrecisions(false)
 
 
 
@@ -351,17 +335,110 @@ function relatedFilms(related){
 
 
 
+ function meanPrecisions(homepage){
+     var element = document.getElementById("meanPrecisions");
 
 
+    $.ajax({url:"/filmsaverageprecisions",success:function (result) {
+         if(homepage) {
 
+             element.innerHTML = '<div><b>Mean Precisions on ' + result[0].count + ' tests:</b></div><br>' +
+                 '<div class="ui middle aligned divided list">' +
+                 '<div class="item">' +
+                 '<div class="right floated content">' +
+                 '<div class="ui circular basic label">' + (result[0].avg_plot).toFixed(2) + '</div>' +
+                 '</div>' +
+                 '<div class="content">' +
+                 '<b>By Plot:</b>' +
+                 '</div>' +
+                 '</div>' +
+                 '<div class="item">' +
+                 '<div class="right floated content">' +
+                 '<div class="ui circular basic label">' + (result[0].avg_cast).toFixed(2) + '</div>' +
+                 '</div>' +
+                 '<div class="content">' +
+                 '<b>By Cast:</b>' +
+                 '</div>' +
+                 '</div>' +
+                 '<div class="item">' +
+                 '<div class="right floated content">' +
+                 '<div class="ui circular basic label">' + (result[0].avg_crew).toFixed(2) + '</div>' +
+                 '</div>' +
+                 '<div class="content">' +
+                 '<b>By Crew:</b>' +
+                 '</div>' +
+                 '</div>' +
+                 '<div class="item">' +
+                 '<div class="right floated content">' +
+                 '<div class="ui circular basic label">' + (result[0].avg_company).toFixed(2) + '</div>' +
+                 '</div>' +
+                 '<div class="content">' +
+                 '<b>By Company:</b>' +
+                 '</div>' +
+                 '</div>' +
+                 '<div class="item">' +
+                 '<div class="right floated content">' +
+                 '<div class="ui circular basic label">' + (result[0].avg_genres).toFixed(2) + '</div>' +
+                 '</div>' +
+                 '<div class="content">' +
+                 '<b>By genres:<b/>' +
+                 '</div>' +
+                 '</div>' +
+                 '</div>';
 
+         }else{
 
-function clearDivs(){
-    var relatedFilms = document.getElementById("relatedFilms");
-    relatedFilms.innerHTML="";
-    var analyzedFilms = document.getElementById("analyzedFilms");
-    analyzedFilms.innerHTML = "";
-}
+             element.innerHTML = '<div><b>Mean Precisions on ' + result[0].count + ' tests:</b></div><br>' +
+                                 '<div class="ui middle aligned divided list">' +
+                                 '<div class="item">' +
+                                 '<div class="right floated content">' +
+                                 '<div class="ui circular basic label">' + (result[0].avg_plot).toFixed(2) + '</div>' +
+                                 '</div>' +
+                                 '<div class="content">' +
+                                 '<a href="#byPlot"><b>By Plot:</b></a>' +
+                                 '</div>' +
+                                 '</div>' +
+                                 '<div class="item">' +
+                                 '<div class="right floated content">' +
+                                 '<div class="ui circular basic label">' + (result[0].avg_cast).toFixed(2) + '</div>' +
+                                 '</div>' +
+                                 '<div class="content">' +
+                                 '<a href="#byCast"><b>By Cast:</b></a>' +
+                                 '</div>' +
+                                 '</div>' +
+                                 '<div class="item">' +
+                                 '<div class="right floated content">' +
+                                 '<div class="ui circular basic label">' + (result[0].avg_crew).toFixed(2) + '</div>' +
+                                 '</div>' +
+                                 '<div class="content">' +
+                                 '<a href="#byCrew"><b>By Crew:</b></a>' +
+                                 '</div>' +
+                                 '</div>' +
+                                 '<div class="item">' +
+                                 '<div class="right floated content">' +
+                                 '<div class="ui circular basic label">' + (result[0].avg_company).toFixed(2) + '</div>' +
+                                 '</div>' +
+                                 '<div class="content">' +
+                                 '<a href="#byCompany"><b>By Company:</b></a>' +
+                                 '</div>' +
+                                 '</div>' +
+                                 '<div class="item">' +
+                                 '<div class="right floated content">' +
+                                 '<div class="ui circular basic label">' + (result[0].avg_genres).toFixed(2) + '</div>' +
+                                 '</div>' +
+                                 '<div class="content">' +
+                                 '<a href="#byGenres"><b>By genres:<b/></a>' +
+                                 '</div>' +
+                                 '</div>' +
+                                 '</div>'+
+                                 '<a href="#labelSearchedFilm">Searched Film</a><br><br>'+
+                                 '<a href="#labelRelatedFilms">Related Films</a>';
+
+         }
+    }});
+
+ }
+
 
 
 

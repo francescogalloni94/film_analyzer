@@ -3,9 +3,7 @@ from pymongo import MongoClient
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy
-import json
 from . import confusion_matrix as matrix
-from bson import json_util
 from sklearn.metrics import confusion_matrix
 
 client = MongoClient()
@@ -40,7 +38,6 @@ def getRelatedByPlot(film_id):
     DBfilmDetails = film_collection.find({"title":{"$nin":recommended_titles}},{"_id": 0 })
 
     for film in DBfilmDetails:
-        #film_list.append(json.dumps(film,default=json_util.default))
         film_list.append(dict(film))
         film_overviews.append(film['overview'])
         true_labels.append("non relevant")
@@ -176,7 +173,6 @@ def getRelatedByGenre():
         for element in intersection:
             if element != 0:
                 overviews.append(film_list[element]['overview'])
-        print(overviews[0])
         orderedArray = cosineSimilarity(overviews,returnFilm=False)
         for element in orderedArray:
             details_to_return.append(film_list[intersection[element]])
