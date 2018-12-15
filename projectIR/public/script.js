@@ -13,7 +13,7 @@ function home(){
         element.innerHTML = '<div class="jumbotron jumbotron-fluid">' +
             '<div class="container">' +
             '<h2 class="display-4">Try to search a film.</h2>' +
-            '<p class="lead"><small>The system will display possible search results and then try to compute similarity with other films by plot,actors,genders.</small></p>' +
+            '<p class="lead"><small>The system will display possible search results and then try to compute similarity with other films.</small></p>' +
             '</div>' +
             '</div>';
     }else{
@@ -154,7 +154,8 @@ function getFilmDetails(){
             $.ajax({url:"/relatedfilmsbyplot/",data:data,success: function(result) {
 
 
-                displayRelatedBy(result.detailsPlot,result.precisionPlot,false,"byPlot","RELATED BY PLOT","postersPlot","evalPlot","listPlot","/static/images/plot.png");
+                displaySimilarityTable(result);
+                displayRelatedBy(result.detailsPlot,result.precisionPlot,true,"byPlot","RELATED BY PLOT","postersPlot","evalPlot","listPlot","/static/images/plot.png");
                 displayRelatedBy(result.detailsCompany,result.precisionCompany,true,"byCompany","RELATED BY PRODUCTION COMPANIES","postersCompany","evalCompany","listCompany","/static/images/production_companies.png");
                 displayRelatedBy(result.detailsCast,result.precisionCast,true,"byCast","RELATED BY CAST MEMBERS","postersCast","evalCast","listCast","/static/images/cast.png");
                 displayRelatedBy(result.detailsCrew,result.precisionCrew,true,"byCrew","RELATED BY CREW MEMBERS","postersCrew","evalCrew","listCrew","/static/images/crew.png");
@@ -243,7 +244,7 @@ function relatedFilms(related){
 
 
  function displayRelatedBy(related,precision,appending,divBy,text,divPoster,divEval,divList,imageSrc){
-     console.log("relatedBy");
+
      var analyzed = document.getElementById("analyzedFilms");
      if(appending)
         analyzed.innerHTML+='<br><br><br>'+
@@ -318,6 +319,41 @@ function relatedFilms(related){
     }
     postersDiv.innerHTML+='<br><br>';
  }
+
+
+ function displaySimilarityTable(data){
+     var analyzed = document.getElementById("analyzedFilms");
+     var htmlString='<h4><small><b>SIMILARITY INSIDE THE IMDB RECCOMENDED GROUP</b></small></h4>'+
+                    '<table class="ui definition table">'+
+                    '<thead>'+
+                    '<tr><th></th>'+
+                    '<th>Plot</th>'+
+                    '<th>Cast</th>'+
+                    '<th>Crew</th>'+
+                    '<th>Company</th>'+
+                    '<th>Genres</th>'+
+                    '</tr></thead>'+
+                    '<tbody>';
+     for(i=0;i<data.recommendedTitles.length;i++){
+         htmlString+='<tr>'+
+                     '<td>'+data.recommendedTitles[i]+'</td>'+
+                     '<td>'+data.similarityPlot[i].toFixed(2)+'</td>'+
+                     '<td>'+data.similarityCast[i].toFixed(2)+'</td>'+
+                     '<td>'+data.similarityCrew[i].toFixed(2)+'</td>'+
+                     '<td>'+data.similarityCompany[i].toFixed(2)+'</td>'+
+                     '<td>'+data.similarityGenres[i].toFixed(2)+'</td>'+
+                     '</tr>';
+     }
+
+
+     htmlString+='</tbody></table>';
+     analyzed.innerHTML=htmlString;
+ }
+
+
+
+
+
 
  function swapTab(tab,postersDiv,evalDiv){
      var posters = document.getElementById(postersDiv);

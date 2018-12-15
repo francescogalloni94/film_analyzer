@@ -14,11 +14,15 @@ genres_collection = db['genres']
 precisions_collection = db['precisions']
 film_list = list()
 true_labels = list()
+reccomended_films = list()
+titles = list()
+
 
 def getRelatedByPlot(film_id):
     filmDetails = film_utility.getFilmDetails(film_id)
     recommended = filmDetails['recommendations']['results']
     global film_list
+    global reccomended_films
     film_list = list()
     film_overviews = list()
     recommended_titles = list()
@@ -26,12 +30,16 @@ def getRelatedByPlot(film_id):
     true_labels = list()
     recommended_titles.append(filmDetails['title'])
     film_list.append(filmDetails)
+    plot_similarity_reccomended = list()
+    plot_similarity_reccomended.append(filmDetails['overview'])
     film_overviews.append(filmDetails['overview'])
 
     for film in recommended:
          details = film_utility.getFilmDetails(str(film['id']))
          film_list.append(details)
+         reccomended_films.append(details)
          film_overviews.append(details['overview'])
+         plot_similarity_reccomended.append(details['overview'])
          recommended_titles.append((details['title']))
          true_labels.append("relevant")
 
@@ -51,25 +59,37 @@ def getRelatedByPlot(film_id):
     cast = getRelatedByCast()
     crew = getRelatedByCrew()
     genres = getRelatedByGenre()
+    plot_similarity_array = cosineSimilarityReccomended(plot_similarity_reccomended)
+    recommended_titles.pop(0)
+    global titles
+    titles = recommended_titles
     to_return = dict()
     precision_db = dict()
+
     precision_db['id'] = film_list[0]['id']
+    to_return['recommendedTitles'] = titles
     to_return['detailsPlot'] = details_to_return
     to_return['precisionPlot'] = precision
+    to_return['similarityPlot'] = plot_similarity_array.tolist()
     precision_db['precisionPlot'] = precision
     to_return['detailsCompany'] = companies['details']
     to_return['precisionCompany'] = companies['precision']
+    to_return['similarityCompany'] = companies['companiesSimilarity']
     precision_db['precisionCompany'] = companies['precision']
     to_return['detailsCast'] = cast['details']
     to_return['precisionCast'] = cast['precision']
+    to_return['similarityCast'] = cast['castSimilarity']
     precision_db['precisionCast'] = cast['precision']
     to_return['detailsCrew'] = crew['details']
     to_return['precisionCrew'] = crew['precision']
+    to_return['similarityCrew'] = crew['crewSimilarity']
     precision_db['precisionCrew'] = crew['precision']
-    if genres != None:
+    if 'details' in genres:
         to_return['detailsGenres'] = genres['details']
         to_return['precisionGenres'] = genres['precision']
         precision_db['precisionGenres'] = genres['precision']
+
+    to_return['similarityGenres'] = genres['genresSimilarity']
 
     if precisions_collection.find({"id":precision_db['id']}).count() == 0:
         precisions_collection.insert_one(precision_db)
@@ -99,6 +119,21 @@ def cosineSimilarity(toAnalyze,tokenizer=True,returnFilm=True):
         return details_to_return
     else:
         return ordered_array
+
+
+def cosineSimilarityReccomended(toAnalyze,tokenizer=True):
+    if tokenizer:
+        tfidf_vectorizer = TfidfVectorizer()
+        tfidf_matrix = tfidf_vectorizer.fit_transform(toAnalyze)
+    else:
+        tfidf_vectorizer = TfidfVectorizer(tokenizer=lambda x: x, stop_words=None, lowercase=False)
+        tfidf_matrix = tfidf_vectorizer.fit_transform(toAnalyze)
+    similarity_array = cosine_similarity(tfidf_matrix[0:1],tfidf_matrix)
+    similarity_array = similarity_array[0]
+    similarity_array = numpy.delete(similarity_array,0)
+    return similarity_array
+
+
 
 
 def computeConfusionMatrix(true_labels,predicted_labels,filename):
@@ -137,11 +172,20 @@ def getRelatedByGenre():
     global film_list
     global true_labels
     genres_list = list()
+    reccomended = list()
+    count = 0
     for element in film_list:
         genres = list()
+        reccomended_genres = list()
         for genre in element['genres']:
             genres.append(genre['name'])
+            reccomended_genres.append(genre['name'])
         genres_list.append(genres)
+        if count <=20:
+            reccomended.append(reccomended_genres)
+        count = count+1
+
+    genres_similarity_array = cosineSimilarityReccomended(reccomended,tokenizer=False)
     genres_db = genres_collection.find()
     genres_dict = dict()
     for element in genres_db:
@@ -165,8 +209,9 @@ def getRelatedByGenre():
 
     details_to_return = list()
     to_return = dict()
+    to_return['genresSimilarity'] = genres_similarity_array.tolist()
     if len(intersection)<=20:
-        return None
+        return to_return
     else:
         overviews = list()
         overviews.append(film_list[0]['overview'])
@@ -192,17 +237,28 @@ def getRelatedByCast():
     global film_list
     global true_labels
     cast_list = list()
+    reccomended = list()
+    count = 0
     for element in film_list:
         cast = list()
+        reccomended_cast = list()
         for member in element['credits']['cast']:
             cast.append(member['name'])
+            reccomended_cast.append(member['name'])
+
         cast_list.append(cast)
+        if count <=20:
+            reccomended.append(reccomended_cast)
+        count = count + 1
+
     details_to_return = cosineSimilarity(cast_list,tokenizer=False)
+    cast_similarity_array = cosineSimilarityReccomended(reccomended,tokenizer=False)
     predicted_labels = getPredictedLabels(details_to_return)
     precision = computeConfusionMatrix(true_labels,predicted_labels, "./public/images/cast.png")
     to_return = dict()
     to_return['details'] = details_to_return
     to_return['precision'] = precision
+    to_return['castSimilarity'] = cast_similarity_array.tolist()
     return to_return
 
 
@@ -212,17 +268,27 @@ def getRelatedByCrew():
     global film_list
     global true_labels
     crew_list = list()
+    reccomended = list()
+    count = 0
     for element in film_list:
         crew = list()
+        reccomended_crew = list()
         for member in element['credits']['crew']:
             crew.append(member['name'])
+            reccomended_crew.append(member['name'])
         crew_list.append(crew)
+        if count <=20:
+            reccomended.append(reccomended_crew)
+        count = count+1
+
     details_to_return = cosineSimilarity(crew_list,tokenizer=False)
+    crew_similarity_array = cosineSimilarityReccomended(reccomended,tokenizer=False)
     predicted_labels = getPredictedLabels(details_to_return)
     precision = computeConfusionMatrix(true_labels,predicted_labels,"./public/images/crew.png")
     to_return = dict()
     to_return['details'] = details_to_return
     to_return['precision'] = precision
+    to_return['crewSimilarity'] = crew_similarity_array.tolist()
     return to_return
 
 
@@ -231,18 +297,27 @@ def getRelatedByProductionCompanies():
     global film_list
     global true_labels
     company_list = list()
+    reccomended = list()
+    count = 0
     for element in film_list:
         companies = list()
+        reccomended_companies = list()
         for company in element['production_companies']:
             companies.append(company['name'])
+            reccomended_companies.append(company['name'])
         company_list.append(companies)
+        if count <=20:
+            reccomended.append(reccomended_companies)
+        count = count+1
 
     details_to_return = cosineSimilarity(company_list,tokenizer=False)
+    companies_similarity_array = cosineSimilarityReccomended(reccomended,tokenizer=False)
     predicted_labels = getPredictedLabels(details_to_return)
     precision = computeConfusionMatrix(true_labels, predicted_labels, "./public/images/production_companies.png")
     to_return = dict()
     to_return['details'] = details_to_return
     to_return['precision'] = precision
+    to_return['companiesSimilarity'] = companies_similarity_array.tolist()
     return to_return
 
 
