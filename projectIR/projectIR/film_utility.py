@@ -41,6 +41,7 @@ def getFilmsAveragePrecisions():
         "avg_company":{"$avg":"$precisionCompany"},
         "avg_genres":{"$avg":"$precisionGenres"},
         "avg_cast":{"$avg":"$precisionCast"},
+        "avg_genres_cosine":{"$avg":"$precisionGenresCosine"},
         "count":{"$sum":1}
      }
     }]

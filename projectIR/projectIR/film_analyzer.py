@@ -59,6 +59,7 @@ def getRelatedByPlot(film_id):
     cast = getRelatedByCast()
     crew = getRelatedByCrew()
     genres = getRelatedByGenre()
+    genres_cosine = getRelatedByGenresCosineSimilarity()
     plot_similarity_array = cosineSimilarityReccomended(plot_similarity_reccomended)
     recommended_titles.pop(0)
     global titles
@@ -90,7 +91,9 @@ def getRelatedByPlot(film_id):
         precision_db['precisionGenres'] = genres['precision']
 
     to_return['similarityGenres'] = genres['genresSimilarity']
-
+    to_return['detailsGenresCosine'] = genres_cosine['details']
+    to_return['precisionGenresCosine'] = genres_cosine['precision']
+    precision_db['precisionGenresCosine'] = genres_cosine['precision']
     if precisions_collection.find({"id":precision_db['id']}).count() == 0:
         precisions_collection.insert_one(precision_db)
 
@@ -321,6 +324,23 @@ def getRelatedByProductionCompanies():
     return to_return
 
 
+def getRelatedByGenresCosineSimilarity():
+    global film_list
+    global true_labels
+    genres_list = list()
+    for element in film_list:
+        genres = list()
+        for genre in element['genres']:
+            genres.append(genre['name'])
+        genres_list.append(genres)
+
+    details_to_return = cosineSimilarity(genres_list, tokenizer=False)
+    predicted_labels = getPredictedLabels(details_to_return)
+    precision = computeConfusionMatrix(true_labels, predicted_labels, "./public/images/genres_cosine_similarity.png")
+    to_return = dict()
+    to_return['details'] = details_to_return
+    to_return['precision'] = precision
+    return to_return
 
 
 

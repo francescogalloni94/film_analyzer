@@ -159,8 +159,10 @@ function getFilmDetails(){
                 displayRelatedBy(result.detailsCompany,result.precisionCompany,true,"byCompany","RELATED BY PRODUCTION COMPANIES","postersCompany","evalCompany","listCompany","/static/images/production_companies.png");
                 displayRelatedBy(result.detailsCast,result.precisionCast,true,"byCast","RELATED BY CAST MEMBERS","postersCast","evalCast","listCast","/static/images/cast.png");
                 displayRelatedBy(result.detailsCrew,result.precisionCrew,true,"byCrew","RELATED BY CREW MEMBERS","postersCrew","evalCrew","listCrew","/static/images/crew.png");
-                if(result.detailsGenres!=undefined && result.precisionGenres!=undefined)
-                    displayRelatedBy(result.detailsGenres,result.precisionGenres,true,"byGenres","RELATED BY GENRES AND RANKED BY PLOT","postersGenres","evalGenres","listGenres","/static/images/genres.png");
+                if(result.detailsGenres!=undefined && result.precisionGenres!=undefined) {
+                    displayRelatedBy(result.detailsGenres, result.precisionGenres, true, "byGenres", "RELATED BY GENRES BOOLEAN FILTERING AND RANKED BY PLOT", "postersGenres", "evalGenres", "listGenres", "/static/images/genres.png");
+                }
+                displayRelatedBy(result.detailsGenresCosine,result.precisionGenresCosine,true,"byGenresCosine", "RELATED BY GENRES COSINE SIMILARITY","postersGenresCosine","evalGenresCosine","listGenresCosine","/static/images/genres_cosine_similarity.png");
 
 
                 meanPrecisions(false)
@@ -323,7 +325,7 @@ function relatedFilms(related){
 
  function displaySimilarityTable(data){
      var analyzed = document.getElementById("analyzedFilms");
-     var htmlString='<h4><small><b>SIMILARITY INSIDE THE IMDB RECCOMENDED GROUP</b></small></h4>'+
+     var htmlString='<h4 id="labelSimilarities"><small><b>SIMILARITY INSIDE THE IMDB RECCOMENDED GROUP</b></small></h4>'+
                     '<table class="ui definition table">'+
                     '<thead>'+
                     '<tr><th></th>'+
@@ -376,6 +378,7 @@ function relatedFilms(related){
 
 
     $.ajax({url:"/filmsaverageprecisions",success:function (result) {
+         console.log(result);
          if(homepage) {
 
              element.innerHTML = '<div><b>Mean Precisions on ' + result[0].count + ' tests:</b></div><br>' +
@@ -418,6 +421,14 @@ function relatedFilms(related){
                  '</div>' +
                  '<div class="content">' +
                  '<b>By genres:<b/>' +
+                 '</div>' +
+                 '</div>' +
+                 '<div class="item">' +
+                 '<div class="right floated content">' +
+                 '<div class="ui circular basic label">' + (result[0].avg_genres_cosine).toFixed(2) + '</div>' +
+                 '</div>' +
+                 '<div class="content">' +
+                 '<b>By genres cosine:<b/>' +
                  '</div>' +
                  '</div>' +
                  '</div>';
@@ -466,9 +477,19 @@ function relatedFilms(related){
                                  '<a href="#byGenres"><b>By genres:<b/></a>' +
                                  '</div>' +
                                  '</div>' +
+                                 '<div class="item">' +
+                                 '<div class="right floated content">' +
+                                 '<div class="ui circular basic label">' + (result[0].avg_genres_cosine).toFixed(2) + '</div>' +
+                                 '</div>' +
+                                 '<div class="content">' +
+                                 '<a href="#byGenresCosine"><b>By genres cosine:<b/></a>' +
+                                 '</div>' +
+                                 '</div>' +
                                  '</div>'+
                                  '<a href="#labelSearchedFilm">Searched Film</a><br><br>'+
-                                 '<a href="#labelRelatedFilms">Related Films</a>';
+                                 '<a href="#labelRelatedFilms">Related Films</a><br><br>'+
+                                 '<a href="#labelSimilarities">Related Films similarities</a>';
+
 
          }
     }});
